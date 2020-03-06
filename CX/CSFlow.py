@@ -101,6 +101,16 @@ class CSFlow:
         relative_dist = self.raw_distances / (div + epsilon)
         return relative_dist
 
+    def calc_cosine_dist(self, features):
+        T_features = features[0]
+        I_features = features[1]
+        T_features_i = tf.expand_dims(T_features, 0)
+        I_features_i = tf.expand_dims(I_features, 0)
+        patches_HWCN_i = self.patch_decomposition(T_features_i)
+        cosine_dist_i = tf.nn.conv2d(I_features_i, patches_HWCN_i, strides=[1, 1, 1, 1],
+                                     padding='VALID', use_cudnn_on_gpu=True, name='cosine_dist')
+        return cosine_dist_i
+
     def weighted_average_dist(self, axis = TensorAxis.C):
         if not hasattr(self, 'raw_distances'):
             raise exception('raw_distances property does not exists. cant calculate weighted average l2')
